@@ -1,9 +1,38 @@
 {
-    "StartAt": "Pass",
-    "States": {
-      "Pass": {
-        "Type": "Pass",
+  "StartAt": "Add Alternate Contacts",
+  "States": {
+    "Add Alternate Contacts": {
+      "Next": "Notify Success",
+      "Type": "Task",
+      "Resource": "${ aft_add_alternate_contacts_function_arn }",
+      "ResultPath": "$.targets",
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "Notify Failure"
+        }
+      ]
+    },
+    "Notify Success": {
+        "Type": "Task",
+        "Resource": "arn:${current_partition}:states:::sns:publish",
+        "Parameters": {
+          "TopicArn": "${aft_notification_arn}",
+          "Message.$": "$"
+        },
         "End": true
+      },
+      "Notify Failure": {
+        "Type": "Task",
+        "Resource": "arn:${current_partition}:states:::sns:publish",
+        "Parameters": {
+          "TopicArn": "${aft_failure_notification_arn}",
+          "Message.$": "$.Cause"
+        },
+        "Next": "Failed"
+      },
+      "Failed": {
+        "Type": "Fail"
       }
-    }
+  }
 }
