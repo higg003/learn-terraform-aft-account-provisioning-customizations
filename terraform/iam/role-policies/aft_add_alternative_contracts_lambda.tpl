@@ -6,7 +6,7 @@
             "Action": [
                 "account:GetAlternateContact",
                 "account:PutAlternateContact",
-                "account:DeleteAlternateContact",
+                "account:DeleteAlternateContact"
             ],
             "Resource": "*"
         },

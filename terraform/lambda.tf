@@ -24,6 +24,6 @@ resource "aws_cloudwatch_log_group" "aft_add_alternative_contracts" {
 
 data "archive_file" "aft_add_alternative_contracts" {
   type        = "zip"
-  source_dir  = "${path.module}/../../src/aft_account_provisioning_customisations/aft_add_alternative_contracts"
-  output_path = "${path.module}/../../src/aft_account_provisioning_customisations/aft_add_alternative_contracts.zip"
+  source_dir  = "${path.module}/src/aft_account_provisioning_customisations/aft_add_alternative_contracts"
+  output_path = "${path.module}/src/aft_account_provisioning_customisations/aft_add_alternative_contracts.zip"
 }
