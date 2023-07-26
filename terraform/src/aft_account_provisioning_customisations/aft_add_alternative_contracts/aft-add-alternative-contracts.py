@@ -6,24 +6,19 @@ from aft_common import aft_utils as utils
 from aft_common import notifications
 from aft_common.account_provisioning_framework import ProvisionRoles
 from aft_common.auth import AuthClient
+from aft_common.feature_options import get_aws_regions
 from aft_common.logger import customization_request_logger
 import boto3
 from botocore.exceptions import ClientError
 if TYPE_CHECKING:
     from aws_lambda_powertools.utilities.typing import LambdaContext
+else:
+    LambdaContext = object
     
-ORG_CLIENT = boto3.client("organizations")
-ACCOUNT_CLIENT = boto3.client("account")
-
-SEC_ALTERNATE_CONTACTS = os.environ.get("security_alternate_contact")
-BILL_ALTERNATE_CONTACTS = os.environ.get("operations_alternate_contact")
-OPS_ALTERNATE_CONTACTS = os.environ.get("billing_alternate_contact")
-MANAGEMENT_ACCOUNT_ID = os.environ.get("management_account_id")
-
-LISTED_ACCOUNTS = ORG_CLIENT.list_accounts()
-FAILED_ACCOUNTS = []
+SEC_ALTERNATE_CONTACTS = "CONTACT_TYPE=SECURITY; EMAIL_ADDRESS=john@example.com; CONTACT_NAME=John Bob; PHONE_NUMBER=1234567890; CONTACT_TITLE=Risk Manager"
+BILL_ALTERNATE_CONTACTS = "CONTACT_TYPE=BILLING; EMAIL_ADDRESS=alice@example.com; CONTACT_NAME=Alice Doe; PHONE_NUMBER=1234567890; CONTACT_TITLE=Finance Manager"
+OPS_ALTERNATE_CONTACTS = "CONTACT_TYPE=OPERATIONS; EMAIL_ADDRESS=bob@example.com; CONTACT_NAME=Bob Smith; PHONE_NUMBER=1234567890; CONTACT_TITLE=Operations Manager"
 CONTACTS = []
-
 
 def parse_contact_types():
     CONTACT_LIST = []
@@ -32,12 +27,11 @@ def parse_contact_types():
         list_to_dict = {CONTACT_LIST[i]: CONTACT_LIST[i + 1] for i in range(0, len(CONTACT_LIST), 2)}
         CONTACTS.append(list_to_dict)
 
-
-def put_alternate_contact(accountId):
+def put_alternate_contacts(account_id: str, account_client: Any) -> None:
     for contact in CONTACTS:
         try:
-            response = ACCOUNT_CLIENT.put_alternate_contact(
-                AccountId=accountId,
+            account_client.put_alternate_contact(
+                AccountId=account_id,
                 AlternateContactType=contact["CONTACT_TYPE"],
                 EmailAddress=contact["EMAIL_ADDRESS"],
                 Name=contact["CONTACT_NAME"],
@@ -46,15 +40,38 @@ def put_alternate_contact(accountId):
             )
 
         except ClientError as error:
-            FAILED_ACCOUNTS.append(accountId)
             print(error)
-            pass
+            raise
 
+def lambda_handler(event: Dict[str, Any], context: LambdaContext) -> None:
+    request_id = event["customization_request_id"]
+    target_account_id = event["account_info"]["account"]["id"]
 
-def lambda_handler(event, context):
-    parse_contact_types()
-    for account in LISTED_ACCOUNTS["Accounts"]:
-        if account["Status"] != "SUSPENDED" and account["Id"] != MANAGEMENT_ACCOUNT_ID:
-            put_alternate_contact(account["Id"])
+    logger = customization_request_logger(
+        aws_account_id=target_account_id, customization_request_id=request_id
+    )
 
-    return ("Completed! Failed Accounts: ", FAILED_ACCOUNTS)
+    auth = AuthClient()
+    aft_session = boto3.session.Session()
+    try:
+        target_account_session = auth.get_target_account_session(
+            account_id=target_account_id, role_name=ProvisionRoles.SERVICE_ROLE_NAME
+        )
+        account_client = target_account_session.client("account")
+        parse_contact_types()
+        put_alternate_contacts(account_id=target_account_id, account_client=account_client)
+
+    except Exception as error:
+        notifications.send_lambda_failure_sns_message(
+            session=aft_session,
+            message=str(error),
+            context=context,
+            subject="AFT: Failed to add alternative contacts",
+        )
+        message = {
+            "FILE": __file__.split("/")[-1],
+            "METHOD": inspect.stack()[0][3],
+            "EXCEPTION": str(error),
+        }
+        logger.exception(message)
+        raise
