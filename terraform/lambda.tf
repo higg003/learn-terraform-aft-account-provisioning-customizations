@@ -1,6 +1,6 @@
 resource "aws_lambda_function" "aft_add_alternative_contracts" {
   filename      = data.archive_file.aft_add_alternative_contracts.output_path
-  function_name = "aft_add_alternative_contracts"
+  function_name = "aft-add-alternative-contracts"
   description   = "Adds Alternate Contacts in the newly provisioned account"
   role          = aws_iam_role.aft_add_alternative_contracts_lambda.arn
   handler       = "aft_add_alternative_contracts.lambda_handler"
