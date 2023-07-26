@@ -7,7 +7,7 @@ resource "aws_lambda_function" "aft_add_alternative_contracts" {
 
   source_code_hash = data.archive_file.aft_add_alternative_contracts.output_base64sha256
   memory_size      = 1024
-  runtime          = "python3.9"
+  runtime          = "python3.8"
   timeout          = "300"
   layers           = [data.aws_lambda_layer_version.aft_common.arn]
 
