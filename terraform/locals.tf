@@ -1,6 +1,7 @@
 locals {
 
   aft_layer_name             = "aft_common"
+  aft_layer_suffix           = "1-9-0"
   aft_private_subnet_names   = ["aft-vpc-private-subnet-01", "aft-vpc-private-subnet-02"]
   aft_default_sg_name        = "aft-default-sg"
   aft_kms_key_alias          = "alias/aft"

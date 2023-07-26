@@ -11,7 +11,7 @@ data "aws_security_group" "aft_default_sg" {
 }
 
 data "aws_lambda_layer_version" "aft_common" {
-  layer_name = local.aft_layer_name
+  layer_name = "${local.aft_layer_name}-${local.aft_layer_suffix}"
 }
 
 data "aws_kms_key" "aft_key" {
