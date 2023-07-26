@@ -1,5 +1,6 @@
 locals {
 
+  lambda_function_name = "aft-add-alternative-contracts"
   aft_layer_name             = "aft-common"
   aft_layer_suffix           = "1-9-0"
   aft_private_subnet_names   = ["aft-vpc-private-subnet-01", "aft-vpc-private-subnet-02"]
