@@ -2,9 +2,21 @@
   "StartAt": "Add Alternate Contacts",
   "States": {
     "Add Alternate Contacts": {
-      "Next": "Notify Success",
+      "Next": "Add Account Alias",
       "Type": "Task",
       "Resource": "${ aft_add_alternate_contacts_function_arn }",
+      "ResultPath": "$.targets",
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "Notify Failure"
+        }
+      ]
+    },
+    "Add Account Alias": {
+      "Next": "Notify Success",
+      "Type": "Task",
+      "Resource": "${ aft_add_account_alias_function_arn }",
       "ResultPath": "$.targets",
       "Catch": [
         {

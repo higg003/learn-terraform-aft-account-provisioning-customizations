@@ -22,16 +22,16 @@ resource "aws_iam_role_policy" "aft_states" {
 # Lambda - Add Alternative Contacts
 ###################################################################
 
-resource "aws_iam_role" "aft_add_alternative_contracts_lambda" {
-  name               = "aft-add-alternative-contracts-execution-role"
+resource "aws_iam_role" "aft_custom_provisioning" {
+  name               = "aft-custom-provisioning-execution-role"
   assume_role_policy = templatefile("${path.module}/iam/trust-policies/lambda.tpl", { none = "none" })
 }
 
-resource "aws_iam_role_policy" "aft_add_alternative_contracts_lambda" {
-  name = "aft-add-alternative-contracts-policy"
-  role = aws_iam_role.aft_add_alternative_contracts_lambda.id
+resource "aws_iam_role_policy" "aft_custom_provisioning" {
+  name = "aft-custom-provisioning-policy"
+  role = aws_iam_role.aft_custom_provisioning.id
 
-  policy = templatefile("${path.module}/iam/role-policies/aft_add_alternative_contracts_lambda.tpl", {
+  policy = templatefile("${path.module}/iam/role-policies/aft_custom_provisioning.tpl", {
     data_aws_caller_identity_current_account_id = data.aws_caller_identity.current.account_id
     data_aws_partition_current_partition        = data.aws_partition.current.partition
     data_aws_region_current_name                = data.aws_region.current.name
@@ -42,8 +42,8 @@ resource "aws_iam_role_policy" "aft_add_alternative_contracts_lambda" {
 
 }
 
-resource "aws_iam_role_policy_attachment" "aft_add_alternative_contracts_lambda" {
+resource "aws_iam_role_policy_attachment" "aft_custom_provisioning" {
   count      = length(local.lambda_managed_policies)
-  role       = aws_iam_role.aft_add_alternative_contracts_lambda.name
+  role       = aws_iam_role.aft_custom_provisioning.name
   policy_arn = local.lambda_managed_policies[count.index]
 }

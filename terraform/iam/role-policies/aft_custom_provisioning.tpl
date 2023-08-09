@@ -1,15 +1,6 @@
 {
     "Version": "2012-10-17",
     "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-                "account:GetAlternateContact",
-                "account:PutAlternateContact",
-                "account:DeleteAlternateContact"
-            ],
-            "Resource": "*"
-        },
           {
             "Effect" : "Allow",
             "Action" : "ssm:GetParameter",
