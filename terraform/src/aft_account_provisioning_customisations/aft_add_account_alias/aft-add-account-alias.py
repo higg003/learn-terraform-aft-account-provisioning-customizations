@@ -12,7 +12,7 @@ else:
     
 def add_account_alias(account_name: str, account_client: Any) -> None:
     existing_aliases = account_client.list_account_aliases()['AccountAliases']
-
+    
     for existing_alias in existing_aliases:
         account_client.delete_account_alias(AccountAlias=existing_alias)
 
@@ -34,7 +34,9 @@ def lambda_handler(event: Dict[str, Any], context: LambdaContext) -> None:
             account_id=target_account_id, role_name=ProvisionRoles.SERVICE_ROLE_NAME
         )
         account_client = target_account_session.client("iam")
+        logger.info("Connecting to account to add alias")
         add_account_alias(account_name, account_client)
+        logger.info("Alias added to account")
         
     except Exception as error:
         notifications.send_lambda_failure_sns_message(
