@@ -1,7 +1,7 @@
 locals {
 
   lambda_contracts_function_name = "aft-add-alternative-contracts"
-  lambda_aliases_function_name   = "aft-add-aliases"
+  lambda_aliases_function_name   = "aft-add-account-alias"
   aft_layer_name                 = "aft-common"
   aft_layer_suffix               = "1-9-0"
   aft_private_subnet_names       = ["aft-vpc-private-subnet-01", "aft-vpc-private-subnet-02"]

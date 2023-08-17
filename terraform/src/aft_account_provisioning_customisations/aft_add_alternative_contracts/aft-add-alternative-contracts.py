@@ -12,8 +12,8 @@ import boto3
 from botocore.exceptions import ClientError
 if TYPE_CHECKING:
     from aws_lambda_powertools.utilities.typing import LambdaContext
-#else:
-#    LambdaContext = object
+else:
+    LambdaContext = object
     
 SEC_ALTERNATE_CONTACTS = "CONTACT_TYPE=SECURITY; EMAIL_ADDRESS=john@example.com; CONTACT_NAME=John Bob; PHONE_NUMBER=1234567890; CONTACT_TITLE=Risk Manager"
 BILL_ALTERNATE_CONTACTS = "CONTACT_TYPE=BILLING; EMAIL_ADDRESS=alice@example.com; CONTACT_NAME=Alice Doe; PHONE_NUMBER=1234567890; CONTACT_TITLE=Finance Manager"
