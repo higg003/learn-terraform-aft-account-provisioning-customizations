@@ -7,6 +7,8 @@ from aft_common.logger import customization_request_logger
 import boto3
 if TYPE_CHECKING:
     from aws_lambda_powertools.utilities.typing import LambdaContext
+else:
+    LambdaContext = object
     
 def add_account_alias(account_name: str, account_client: Any) -> None:
     existing_aliases = account_client.list_account_aliases()['AccountAliases']
